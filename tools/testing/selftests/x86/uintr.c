@@ -17,12 +17,12 @@
 #endif
 
 #ifndef __NR_uintr_register_handler
-#define __NR_uintr_register_handler	449
-#define __NR_uintr_unregister_handler	450
-#define __NR_uintr_create_fd		451
-#define __NR_uintr_register_sender	452
-#define __NR_uintr_unregister_sender	453
-#define __NR_uintr_wait			454
+#define __NR_uintr_register_handler	450
+#define __NR_uintr_unregister_handler	451
+#define __NR_uintr_create_fd		452
+#define __NR_uintr_register_sender	453
+#define __NR_uintr_unregister_sender	454
+#define __NR_uintr_wait			455
 #endif
 
 #define uintr_register_handler(handler, flags)	syscall(__NR_uintr_register_handler, handler, flags)
