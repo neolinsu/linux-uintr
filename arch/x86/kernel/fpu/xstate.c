@@ -641,7 +641,7 @@ static bool __init check_xstate_against_struct(int nr)
 	    (nr == XFEATURE_RSRVD_COMP_11) ||
 	    (nr == XFEATURE_RSRVD_COMP_12) ||
 	    (nr == XFEATURE_RSRVD_COMP_13) ||
-	    (nr == XFEATURE_LBR))) {
+	    (nr == XFEATURE_LBR)) {
 		WARN_ONCE(1, "no structure for xstate: %d\n", nr);
 		XSTATE_WARN_ON(1);
 		return false;

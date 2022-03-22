@@ -15,11 +15,16 @@
 #include <linux/uaccess.h>
 
 #include <asm/apic.h>
-#include <asm/fpu/internal.h>
+#include <asm/fpu/signal.h>
+#include <asm/fpu/api.h>
 #include <asm/irq_vectors.h>
 #include <asm/msr.h>
 #include <asm/msr-index.h>
 #include <asm/uintr.h>
+
+#include "fpu/internal.h"
+#include "fpu/xstate.h"
+#include "fpu/context.h"
 
 /*
  * Each UITT entry is 16 bytes in size.
@@ -306,7 +311,7 @@ static void teardown_uitt(void)
 	} else {
 		struct uintr_state *p;
 
-		p = get_xsave_addr(&fpu->state.xsave, XFEATURE_UINTR);
+		p = get_xsave_addr(&fpu->fpstate->regs.xsave, XFEATURE_UINTR);
 		if (p) {
 			p->uitt_size = 0;
 			p->uitt_addr = 0;
@@ -347,9 +352,9 @@ static int init_uitt(void)
 		struct xregs_state *xsave;
 		struct uintr_state *p;
 
-		xsave = &fpu->state.xsave;
+		xsave = &(fpu->fpstate->regs.xsave);
 		xsave->header.xfeatures |= XFEATURE_MASK_UINTR;
-		p = get_xsave_addr(&fpu->state.xsave, XFEATURE_UINTR);
+		p = get_xsave_addr(&(fpu->fpstate->regs.xsave), XFEATURE_UINTR);
 		if (p) {
 			p->uitt_size = UINTR_MAX_UITT_NR;
 			p->uitt_addr = (u64)ui_send->uitt_ctx->uitt | 1;
@@ -587,7 +592,7 @@ int do_uintr_unregister_handler(void)
 	} else {
 		struct uintr_state *p;
 
-		p = get_xsave_addr(&fpu->state.xsave, XFEATURE_UINTR);
+		p = get_xsave_addr(&fpu->fpstate->regs.xsave, XFEATURE_UINTR);
 		if (p) {
 			p->handler = 0;
 			p->stack_adjust = 0;
@@ -670,9 +675,9 @@ int do_uintr_register_handler(u64 handler)
 		struct xregs_state *xsave;
 		struct uintr_state *p;
 
-		xsave = &fpu->state.xsave;
+		xsave = &(fpu->fpstate->regs.xsave);
 		xsave->header.xfeatures |= XFEATURE_MASK_UINTR;
-		p = get_xsave_addr(&fpu->state.xsave, XFEATURE_UINTR);
+		p = get_xsave_addr(&(fpu->fpstate->regs.xsave), XFEATURE_UINTR);
 		if (p) {
 			p->handler = handler;
 			p->upid_addr = (u64)ui_recv->upid_ctx->upid;
@@ -842,7 +847,7 @@ void uintr_free(struct task_struct *t)
 	} else {
 		struct uintr_state *p;
 
-		p = get_xsave_addr(&fpu->state.xsave, XFEATURE_UINTR);
+		p = get_xsave_addr(&(fpu->fpstate->regs.xsave), XFEATURE_UINTR);
 		if (p) {
 			p->handler = 0;
 			p->uirr = 0;
